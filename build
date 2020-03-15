@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+import os
+import configparser
+
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+
+def ensure_dir(dir):
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+    return dir
+
+
+def main():
+    tag = config["DEFAULT"]["DockerTag"]
+    cmd = f"sudo docker build --build-arg USER_ID=$(id -u) --tag {tag} ."
+    print(cmd)
+    os.system(cmd)
+
+    # for testing we will add some folders here. You will likely not want these created and instead mount
+    # a path do a dataset somewhere else for the input and some output path on one of the network drives
+    ensure_dir("host_input")
+    ensure_dir("host_output")
+
+    # when the container runs, it'll expect folders to be mapped to /app/input, /app/output.
+    # these will be mapped to folders outside of the container. The nice thing is we can keep them
+    # static within the container
+
+    # if it doesn't find them, it'll create them. Problem is it'll crate them as root.
+    # so we will create them before that happens so they don't end up as root
+    ensure_dir("app/input")
+    ensure_dir("app/output")
+
+
+if __name__ == "__main__":
+    main()

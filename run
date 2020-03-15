@@ -1,0 +1,2 @@
+#!/bin/bash
+python3 wrapper.py --input_path host_input --output_path host_output
